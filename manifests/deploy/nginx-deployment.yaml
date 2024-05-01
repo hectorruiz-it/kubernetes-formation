@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-es
+  namespace: application
+  labels:
+    app: nginx-es
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-es
+  template:
+    metadata:
+      labels:
+        app: nginx-es
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+          - name: nginx-conf
+            mountPath: /usr/share/nginx/html
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-es
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-es
+  namespace: es
+data:
+  index.html:  |
+    <h1>HOLA MUNDO</h1>
